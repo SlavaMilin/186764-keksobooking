@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Slava Milin](https://up.htmlacademy.ru/javascript/10/user/186764).
-* Наставник: `Неизвестно`.
+* Наставник: `Федотов Александр`.
 
 ---
 
