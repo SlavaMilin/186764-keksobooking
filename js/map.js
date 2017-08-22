@@ -1,5 +1,10 @@
 'use strict';
 
+var tokioPinMap = document.querySelector('.tokyo__pin-map');
+var longeTemplate = document.querySelector('#lodge-template').content;
+var replaceTable = document.querySelector('.dialog__panel');
+var boxTable = document.querySelector('#offer-dialog');
+
 // constants of hottel settings
 
 var HOTEL_DESCRIPTION = {
@@ -30,9 +35,6 @@ var HOTEL_DESCRIPTION = {
     y: [100, 500]
   }
 };
-
-var tokioPinMap = document.querySelector('.tokyo__pin-map');
-var longeTemplate = document.querySelector('#dialog__panel').content;
 
 // get min and max value and return random value, between them.
 
@@ -72,6 +74,8 @@ var setDescription = function (inputSettings) {
     }
   };
   for (var i = 0; i < 8; i += 1) {
+    var randomNumberFeatures = getRandomNumber(1, inputSettings.features.length - 1);
+    var sortingInputSettings = inputSettings.features.sort(getRandomSort);
     hotelsSettings.author.avatar.push('img/avatars/user0' + (i + 1) + '.png');
     hotelsSettings.offer.price.push(getRandomNumber(inputSettings.price[0], inputSettings.price[1]));
     hotelsSettings.offer.type.push(inputSettings.type[getRandomNumber(0, inputSettings.type.length - 1)]);
@@ -79,7 +83,10 @@ var setDescription = function (inputSettings) {
     hotelsSettings.offer.guests.push(getRandomNumber(inputSettings.guests[0], inputSettings.guests[1]));
     hotelsSettings.offer.checkin.push(inputSettings.checkin[getRandomNumber(0, inputSettings.checkin.length - 1)]);
     hotelsSettings.offer.checkout.push(inputSettings.checkout[getRandomNumber(0, inputSettings.checkout.length - 1)]);
-    hotelsSettings.offer.features.push(inputSettings.features[getRandomNumber(0, inputSettings.features.length - 1)]);
+    hotelsSettings.offer.features.push([]);
+    for (var j = 0; j < randomNumberFeatures; j += 1) {
+      hotelsSettings.offer.features[i].push(sortingInputSettings[j]);
+    }
     hotelsSettings.location.x.push(getRandomNumber(inputSettings.location.x[0], inputSettings.location.x[1]));
     hotelsSettings.location.y.push(getRandomNumber(inputSettings.location.y[0], inputSettings.location.y[1]));
   }
@@ -100,12 +107,28 @@ var drawingPins = function (inputSettings, inputPlace) {
   }
 };
 
-var drawingOnTeplate = function (data, template) {
+var drawingOnTeplate = function (data, template, replacement, box) {
   var cloneTemplate = template.cloneNode(true);
-  cloneTemplate.
-
+  cloneTemplate.querySelector('.lodge__title').insertAdjacentText('afterbegin', data.offer.title[0]);
+  cloneTemplate.querySelector('.lodge__address').insertAdjacentText('afterbegin', data.offer.address[0]);
+  if (data.offer.type[0] === 'flat') {
+    cloneTemplate.querySelector('.lodge__type').insertAdjacentText('afterbegin', 'Квартира');
+  } else if (data.offer.type[0] === 'bungalo') {
+    cloneTemplate.querySelector('.lodge__type').insertAdjacentText('afterbegin', 'Бунгало');
+  } else {
+    cloneTemplate.querySelector('.lodge__type').insertAdjacentText('afterbegin', 'Дом');
+  }
+  cloneTemplate.querySelector('.lodge__rooms-and-guests').insertAdjacentText('afterbegin', 'Для ' + data.offer.guests[0] + ' гостей в ' + data.offer.rooms[0] + ' комнатах');
+  cloneTemplate.querySelector('.lodge__checkin-time').insertAdjacentText('afterbegin', 'Заезд после ' + data.offer.checkin[0] + ', выезд до ' + data.offer.checkout[0]);
+  for (var i = 0; i < data.offer.features[0].length; i += 1) {
+    cloneTemplate.querySelector('.lodge__features').insertAdjacentHTML('beforeend', '<span class="feature__image feature__image--' + data.offer.features[0][i] + '"></span>');
+  }
+  cloneTemplate.querySelector('.lodge__description').insertAdjacentText('afterbegin', data.offer.description[0]);
+  box.querySelector('.dialog__title img').setAttribute('src', data.author.avatar[0]);
+  box.removeChild(replacement);
+  box.appendChild(cloneTemplate);
 };
 
 var hotelsData = setDescription(HOTEL_DESCRIPTION);
 drawingPins(hotelsData, tokioPinMap);
-drawingOnTeplate(hotelsData, longeTemplate);
+drawingOnTeplate(hotelsData, longeTemplate, replaceTable, boxTable);
