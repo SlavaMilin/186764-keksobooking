@@ -35,6 +35,7 @@ var HOTEL_DESCRIPTION = {
     y: [100, 500]
   }
 };
+var NUMBER_PINS = 8;
 
 // get min and max value and return random value, between them.
 
@@ -50,7 +51,7 @@ var getRandomSort = function () {
 
 // function, that take copy of constant and return object
 
-var setDescription = function (inputSettings) {
+var setDescription = function (inputSettings, numberPins) {
   var hotelsSettings = {
     author: {
       avatar: [],
@@ -73,7 +74,7 @@ var setDescription = function (inputSettings) {
       y: []
     }
   };
-  for (var i = 0; i < 8; i += 1) {
+  for (var i = 0; i < numberPins; i += 1) {
     var randomNumberFeatures = getRandomNumber(1, inputSettings.features.length - 1);
     var sortingInputSettings = inputSettings.features.sort(getRandomSort);
     hotelsSettings.author.avatar.push('img/avatars/user0' + (i + 1) + '.png');
@@ -89,9 +90,7 @@ var setDescription = function (inputSettings) {
     }
     hotelsSettings.location.x.push(getRandomNumber(inputSettings.location.x[0], inputSettings.location.x[1]));
     hotelsSettings.location.y.push(getRandomNumber(inputSettings.location.y[0], inputSettings.location.y[1]));
-  }
-  for (var a = 0; a < 8; a += 1) {
-    hotelsSettings.offer.address.push(hotelsSettings.location.x[a] + ', ' + hotelsSettings.location.y[a]);
+    hotelsSettings.offer.address.push(hotelsSettings.location.x[i] + ', ' + hotelsSettings.location.y[i]);
   }
   hotelsSettings.author.avatar.sort(getRandomSort);
   hotelsSettings.offer.features.sort(getRandomSort);
@@ -100,11 +99,21 @@ var setDescription = function (inputSettings) {
 
 // get data and drawing pins on site map
 
-var drawingPins = function (inputSettings, inputPlace) {
-  for (var b = 0; b < 8; b += 1) {
-    var mapPin = '<div class="pin" style="left: ' + inputSettings.location.x[b] + 'px; top: ' + inputSettings.location.y[b] + 'px"><img src="' + inputSettings.author.avatar[b] + '" class="rounded" width="40" height="40"></div>';
-    inputPlace.insertAdjacentHTML('afterbegin', mapPin);
+var drawingPins = function (inputSettings, inputPlace, numberPins) {
+  var fragment = document.createDocumentFragment();
+  for (var b = 0; b < numberPins; b += 1) {
+    var newElement = document.createElement('div');
+    var img = document.createElement('img');
+    newElement.appendChild(img);
+    newElement.setAttribute('style', 'left: ' + inputSettings.location.x[b] + 'px; top: ' + inputSettings.location.y[b] + 'px;');
+    newElement.classList.add('pin');
+    img.setAttribute('src', inputSettings.author.avatar[b]);
+    img.setAttribute('width', 40);
+    img.setAttribute('height', 40);
+    img.classList.add('rounded');
+    fragment.appendChild(newElement);
   }
+  inputPlace.appendChild(fragment);
 };
 
 var drawingOnTeplate = function (data, template, replacement, box) {
@@ -121,7 +130,9 @@ var drawingOnTeplate = function (data, template, replacement, box) {
   cloneTemplate.querySelector('.lodge__rooms-and-guests').insertAdjacentText('afterbegin', 'Для ' + data.offer.guests[0] + ' гостей в ' + data.offer.rooms[0] + ' комнатах');
   cloneTemplate.querySelector('.lodge__checkin-time').insertAdjacentText('afterbegin', 'Заезд после ' + data.offer.checkin[0] + ', выезд до ' + data.offer.checkout[0]);
   for (var i = 0; i < data.offer.features[0].length; i += 1) {
-    cloneTemplate.querySelector('.lodge__features').insertAdjacentHTML('beforeend', '<span class="feature__image feature__image--' + data.offer.features[0][i] + '"></span>');
+    var span = document.createElement('span');
+    span.classList.add('feature__image', 'feature__image--' + data.offer.features[0][i]);
+    cloneTemplate.querySelector('.lodge__features').appendChild(span);
   }
   cloneTemplate.querySelector('.lodge__description').insertAdjacentText('afterbegin', data.offer.description[0]);
   box.querySelector('.dialog__title img').setAttribute('src', data.author.avatar[0]);
@@ -129,6 +140,6 @@ var drawingOnTeplate = function (data, template, replacement, box) {
   box.appendChild(cloneTemplate);
 };
 
-var hotelsData = setDescription(HOTEL_DESCRIPTION);
-drawingPins(hotelsData, tokioPinMap);
+var hotelsData = setDescription(HOTEL_DESCRIPTION, NUMBER_PINS);
+drawingPins(hotelsData, tokioPinMap, NUMBER_PINS);
 drawingOnTeplate(hotelsData, longeTemplate, replaceTable, boxTable);
