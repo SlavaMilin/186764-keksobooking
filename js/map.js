@@ -1,9 +1,11 @@
 'use strict';
 
 var tokioPinMap = document.querySelector('.tokyo__pin-map');
+
 var longeTemplate = document.querySelector('#lodge-template').content;
 var replaceTable = document.querySelector('.dialog__panel');
 var boxTable = document.querySelector('#offer-dialog');
+var dialogCross = boxTable.querySelector('.dialog__close');
 
 // constants of hottel settings
 
@@ -41,9 +43,9 @@ var HOTEL_DESCRIPTION = {
     y: [100, 500]
   }
 };
-
 var NUMBER_PINS = 8;
-
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 // get min and max value and return random value, between them.
 
 var getRandomNumber = function (min, max) {
@@ -89,6 +91,7 @@ var sortingRandomArray = function (inputData, iteration) {
   }
   return result;
 };
+
 var choseRandomNumber = function (inputData, iteration) {
   var result = [];
   for (var i = 0; i < iteration; i += 1) {
@@ -152,6 +155,7 @@ var drawingOnTeplate = function (data, template, replacement, box) {
   var cloneTemplate = template.cloneNode(true);
   cloneTemplate.querySelector('.lodge__title').insertAdjacentText('afterbegin', data.offer.title[0]);
   cloneTemplate.querySelector('.lodge__address').insertAdjacentText('afterbegin', data.offer.address[0]);
+  cloneTemplate.querySelector('.lodge__price').innerHTML = data.offer.price[0] + ' \&#x20bd;/ночь';
   if (data.offer.type[0] === 'flat') {
     cloneTemplate.querySelector('.lodge__type').insertAdjacentText('afterbegin', 'Квартира');
   } else if (data.offer.type[0] === 'bungalo') {
@@ -172,6 +176,66 @@ var drawingOnTeplate = function (data, template, replacement, box) {
   box.appendChild(cloneTemplate);
 };
 
+var replaceDialogData = function (data, index, box) {
+  box.querySelector('.lodge__title').textContent = data.offer.title[index];
+  box.querySelector('.lodge__address').textContent = data.offer.address[index];
+  box.querySelector('.lodge__price').innerHTML = data.offer.price[index] + ' \&#x20bd;/ночь';
+  box.querySelector('.lodge__checkin-time').textContent = 'Заезд после ' + data.offer.checkin[index] + ', выезд до ' + data.offer.checkout[index];
+};
+
+var setPins = function (map, dialog, closeTable) {
+  var pins = document.querySelectorAll('.pin:not(.pin__main)');
+  var pinsImg = document.querySelectorAll('.pin:not(.pin__main) img');
+  var pinActive = 'pin--active';
+  var dialogClose = 'hidden';
+
+  var deleteActivePin = function (element) {
+    element.classList.remove(pinActive);
+  };
+  var onPinClick = function (evt) {
+    var index = evt.target.getAttribute('data-index');
+    if (evt.target === pinsImg[index]) {
+      pins.forEach(deleteActivePin);
+      pins[index].classList.add(pinActive);
+      dialog.classList.remove(dialogClose);
+      replaceDialogData(hotelsData, index, boxTable);
+      document.addEventListener('keydown', onDialogEscPush);
+    }
+  };
+  var onPinPush = function (evt) {
+    var index = evt.target.getAttribute('data-index');
+    if (evt.target === pins[index] && evt.keyCode === ENTER_KEYCODE) {
+      pins.forEach(deleteActivePin);
+      pins[index].classList.add(pinActive);
+      dialog.classList.remove(dialogClose);
+      replaceDialogData(hotelsData, index, boxTable);
+      document.addEventListener('keydown', onDialogEscPush);
+    }
+  };
+  var onDialogEscPush = function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      dialog.classList.add(dialogClose);
+      pins.forEach(deleteActivePin);
+      document.removeEventListener('keydown', onDialogEscPush);
+    }
+  };
+  var onCrossClick = function () {
+    pins.forEach(deleteActivePin);
+    dialog.classList.add(dialogClose);
+    document.removeEventListener('keydown', onDialogEscPush);
+  };
+  for (var i = 0; i < pinsImg.length; i += 1) {
+    pinsImg[i].setAttribute('data-index', i);
+    pins[i].setAttribute('data-index', i);
+    pins[i].setAttribute('tabindex', 0);
+  }
+  map.addEventListener('click', onPinClick);
+  map.addEventListener('keydown', onPinPush);
+  document.addEventListener('keydown', onDialogEscPush);
+  closeTable.addEventListener('click', onCrossClick);
+};
+
 var hotelsData = setDescription(HOTEL_DESCRIPTION, NUMBER_PINS);
 drawingPins(hotelsData, tokioPinMap, NUMBER_PINS);
 drawingOnTeplate(hotelsData, longeTemplate, replaceTable, boxTable);
+setPins(tokioPinMap, boxTable, dialogCross);
