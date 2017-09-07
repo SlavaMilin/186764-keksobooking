@@ -120,7 +120,7 @@ var drawingPins = function (inputSettings, inputPlace, numberPins) {
 var drawingOnTeplate = function (data, template, replacement, box) {
   var cloneTemplate = template.cloneNode(true);
   cloneTemplate.querySelector('.lodge__title').insertAdjacentText('afterbegin', data.offer.title);
-  cloneTemplate.querySelector('.lodge__address').insertAdjacentText('afterbegin', data.offer.address);
+  cloneTemplate.querySelector('.lodge__address').insertAdjacentText('afterbegin', data.location.x + ', ' + data.location.y);
   cloneTemplate.querySelector('.lodge__price').insertAdjacentText('afterbegin', data.offer.price + ' \u20BD/ночь');
   if (data.offer.type === 'flat') {
     cloneTemplate.querySelector('.lodge__type').insertAdjacentText('afterbegin', 'Квартира');
@@ -145,7 +145,7 @@ var drawingOnTeplate = function (data, template, replacement, box) {
 var replaceDialogData = function (data, index, box) {
   box.querySelector('.dialog__title img').setAttribute('src', data[index].author.avatar);
   box.querySelector('.lodge__title').textContent = data[index].offer.title;
-  box.querySelector('.lodge__address').textContent = data[index].offer.address;
+  box.querySelector('.lodge__address').textContent = data[index].location.x + ', ' + data[index].location.y;
   box.querySelector('.lodge__price').textContent = data[index].offer.price + ' \u20BD/ночь';
   box.querySelector('.lodge__checkin-time').textContent = 'Заезд после ' + data[index].offer.checkin + ', выезд до ' + data[index].offer.checkout;
 };
