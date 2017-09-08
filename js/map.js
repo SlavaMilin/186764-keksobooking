@@ -216,60 +216,63 @@ var setPins = function (map, dialog, closeTable) {
   var timeOut = form.querySelector('#timeout');
   var price = form.querySelector('#price');
   var capacity = form.querySelector('#capacity');
+
+  var validateTime = function (evt, time) {
+    switch (evt.target.value) {
+      case '12:00': time.value = '12:00';
+        break;
+      case '13:00': time.value = '13:00';
+        break;
+      case '14:00': time.value = '14:00';
+    }
+  };
+  var validateType = function (evt) {
+    switch (evt.target.value) {
+      case 'flat': price.min = 0;
+        break;
+      case 'bungalo': price.min = 1000;
+        break;
+      case 'house': price.min = 5000;
+        break;
+      case 'palace': price.min = 10000;
+    }
+  };
+  var validateNumber = function (evt) {
+    switch (evt.target.value) {
+      case '1':
+        capacity[0].disabled = true;
+        capacity[1].disabled = true;
+        capacity[2].disabled = false;
+        capacity[3].disabled = true;
+        break;
+      case '2':
+        capacity[0].disabled = true;
+        capacity[1].disabled = false;
+        capacity[2].disabled = false;
+        capacity[3].disabled = true;
+        break;
+      case '3':
+        capacity[0].disabled = false;
+        capacity[1].disabled = false;
+        capacity[2].disabled = false;
+        capacity[3].disabled = true;
+        break;
+      case '100':
+        capacity[0].disabled = true;
+        capacity[1].disabled = true;
+        capacity[2].disabled = true;
+        capacity[3].disabled = false;
+    }
+  };
   var onInputChange = function (evt) {
-    if (evt.target.id === 'timein') {
-      switch (evt.target.value) {
-        case '12:00': timeOut.value = '12:00';
-          break;
-        case '13:00': timeOut.value = '13:00';
-          break;
-        case '14:00': timeOut.value = '14:00';
-      }
-    } else if (evt.target.id === 'timeout') {
-      switch (evt.target.value) {
-        case '12:00': timeIn.value = '12:00';
-          break;
-        case '13:00': timeIn.value = '13:00';
-          break;
-        case '14:00': timeIn.value = '14:00';
-      }
+    if (evt.target.id === 'timeout') {
+      validateTime(evt, timeIn);
+    } else if (evt.target.id === 'timein') {
+      validateTime(evt, timeOut);
     } else if (evt.target.id === 'type') {
-      switch (evt.target.value) {
-        case 'flat': price.min = 0;
-          break;
-        case 'bungalo': price.min = 1000;
-          break;
-        case 'house': price.min = 5000;
-          break;
-        case 'palace': price.min = 10000;
-      }
+      validateType(evt);
     } else if (evt.target.id === 'room_number') {
-      switch (evt.target.value) {
-        case '1':
-          capacity[0].disabled = true;
-          capacity[1].disabled = true;
-          capacity[2].disabled = false;
-          capacity[3].disabled = true;
-          break;
-        case '2':
-          capacity[0].disabled = true;
-          capacity[1].disabled = false;
-          capacity[2].disabled = false;
-          capacity[3].disabled = true;
-          break;
-        case '3':
-          capacity[0].disabled = false;
-          capacity[1].disabled = false;
-          capacity[2].disabled = false;
-          capacity[3].disabled = true;
-          break;
-        case '100':
-          capacity[0].disabled = true;
-          capacity[1].disabled = true;
-          capacity[2].disabled = true;
-          capacity[3].disabled = false;
-          break;
-      }
+      validateNumber(evt);
     }
   };
   form.addEventListener('change', onInputChange);
