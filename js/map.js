@@ -216,59 +216,41 @@ var setPins = function (map, dialog, closeTable) {
   var timeOut = form.querySelector('#timeout');
   var price = form.querySelector('#price');
   var capacity = form.querySelector('#capacity');
+  var timeList = ['12:00', '13:00', '14:00'];
+  var priceMinList = [0, 1000, 5000, 10000];
 
-  var validateTime = function (evt, time) {
-    switch (evt.target.value) {
-      case '12:00': time.value = '12:00';
-        break;
-      case '13:00': time.value = '13:00';
-        break;
-      case '14:00': time.value = '14:00';
-    }
+  var validateTime = function (evt, time, timeValues) {
+    time.value = timeValues.indexOf(evt.target.value) ? evt.target.value : timeValues[0];
   };
   var validateType = function (evt) {
-    switch (evt.target.value) {
-      case 'flat': price.min = 0;
-        break;
-      case 'bungalo': price.min = 1000;
-        break;
-      case 'house': price.min = 5000;
-        break;
-      case 'palace': price.min = 10000;
-    }
+    price.min = priceMinList[evt.target.selectedIndex] ? priceMinList[evt.target.selectedIndex] : priceMinList[0];
   };
   var validateNumber = function (evt) {
+    var changeAvailability = function (target, value1, value2, value3, value4) {
+      target[0].disabled = value1;
+      target[1].disabled = value2;
+      target[2].disabled = value3;
+      target[3].disabled = value4;
+    };
     switch (evt.target.value) {
       case '1':
-        capacity[0].disabled = true;
-        capacity[1].disabled = true;
-        capacity[2].disabled = false;
-        capacity[3].disabled = true;
+        changeAvailability(capacity, true, true, false, true);
         break;
       case '2':
-        capacity[0].disabled = true;
-        capacity[1].disabled = false;
-        capacity[2].disabled = false;
-        capacity[3].disabled = true;
+        changeAvailability(capacity, true, false, false, true);
         break;
       case '3':
-        capacity[0].disabled = false;
-        capacity[1].disabled = false;
-        capacity[2].disabled = false;
-        capacity[3].disabled = true;
+        changeAvailability(capacity, false, false, false, true);
         break;
       case '100':
-        capacity[0].disabled = true;
-        capacity[1].disabled = true;
-        capacity[2].disabled = true;
-        capacity[3].disabled = false;
+        changeAvailability(capacity, true, true, true, false);
     }
   };
   var onInputChange = function (evt) {
     if (evt.target.id === 'timeout') {
-      validateTime(evt, timeIn);
+      validateTime(evt, timeIn, timeList);
     } else if (evt.target.id === 'timein') {
-      validateTime(evt, timeOut);
+      validateTime(evt, timeOut, timeList);
     } else if (evt.target.id === 'type') {
       validateType(evt);
     } else if (evt.target.id === 'room_number') {
